@@ -590,3 +590,150 @@ select {
   width: 100%;
   box-sizing: border-box;
 }
+
+/* Auto Duo interface */
+:root {
+  color-scheme: light dark;
+  --page: #f2f6f3;
+  --surface: #ffffff;
+  --soft: #f0f7f2;
+  --text: #172a22;
+  --muted: #64776c;
+  --line: #dce8df;
+  --accent: #147d52;
+  --accent-dark: #096440;
+}
+
+html {
+  min-width: 340px;
+  max-width: 340px;
+  background: var(--page);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body { margin: 0; padding: 18px; }
+*, *::before, *::after { box-sizing: border-box; }
+p, h4 { line-height: 1.5; }
+a { color: var(--accent); }
+a:hover { color: var(--accent-dark); }
+hr { border: 0; border-top: 1px solid var(--line); }
+
+button {
+  min-height: 38px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  transition: background .15s, transform .15s;
+}
+button:hover { background: var(--accent-dark); opacity: 1; }
+button:active { transform: translateY(1px); }
+button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 3px solid #68c99a;
+  outline-offset: 2px;
+}
+button:disabled, #pushButton:disabled, #verifyButton:disabled {
+  background: var(--line);
+  color: var(--muted);
+  border-color: transparent;
+}
+input, select {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 8px;
+}
+
+.app-header, .brand, .header-actions, .device-bar { display: flex; align-items: center; }
+.app-header { justify-content: space-between; gap: 8px; margin-bottom: 18px; }
+.brand { gap: 9px; min-width: 0; }
+.brand img { width: 40px; margin: 0; }
+.brand strong { display: block; font-size: 18px; letter-spacing: -.7px; line-height: 1; }
+.brand span, .eyebrow, .device-bar label {
+  display: block;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+.brand span { margin-top: 5px; }
+.header-actions { gap: 9px; }
+#gear { width: 23px; height: 23px; flex-shrink: 0; }
+#totp { width: auto; gap: 4px; white-space: nowrap; color: var(--text); }
+#totp circle { stroke: var(--accent); }
+#totpCode { font-size: 12px; font-weight: 700; }
+.device-bar { justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.device-bar select { width: 210px; max-width: 210px; height: 37px; }
+.screen, #activation, #settings {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px 14px;
+  box-shadow: 0 8px 26px rgba(27, 73, 48, .05);
+}
+.screen h2 { font-size: 19px; letter-spacing: -.5px; margin: 0 0 3px; }
+.screen h4 { padding: 0 4px; }
+.screen button { width: auto; min-width: 110px; }
+.slide, .oneSlide, .failedReasonBackground {
+  background: var(--soft);
+  color: var(--text);
+  border-radius: 12px;
+}
+.instructions { background: var(--soft); border-radius: 10px; padding: 3px; }
+.instructions-label { background: transparent; color: var(--muted); border-radius: 8px; }
+.instructions-class:checked + .instructions-label { background: var(--surface); color: var(--accent); }
+#prev, #next { min-width: 0; background: var(--soft); color: var(--accent); }
+#helpButton { width: 21px; right: 12px; bottom: 12px; }
+#settings table { padding: 0; }
+#settings th, #settings td { padding: 7px 3px; }
+#deviceSettingsDiv { border-color: var(--line); }
+#deleteButton { background: #fff3f1; color: #a7342c; }
+#deleteButton:hover { background: #a7342c; color: #fff; border-color: #a7342c; }
+.approve { background: var(--accent); }
+.deny { background: #b9473d; }
+
+html.options-page { min-width: 0; max-width: none; min-height: 100%; }
+.options-page body { padding: 40px 20px; }
+.options-shell { max-width: 720px; margin: 0 auto; }
+.options-heading { display: flex; align-items: center; gap: 14px; }
+.options-heading img { width: 56px; margin: 0; }
+.options-heading h1 { font-size: 27px; letter-spacing: -1px; }
+.options-heading .eyebrow { text-align: left; margin: 0 0 5px; }
+.options-description { text-align: left; color: var(--muted); font-size: 14px; }
+.options-page #feedback { text-align: left; color: var(--accent); font-weight: 650; }
+.options-page table { border-collapse: separate; border-spacing: 0 10px; }
+.options-page th, .options-page td {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 16px 20px;
+}
+.options-page th { text-align: left; border-right: 0; border-radius: 12px 0 0 12px; }
+.options-page td { width: 160px; border-left: 0; border-radius: 0 12px 12px 0; }
+.options-page th h3 { margin: 0; font-size: 15px; }
+.options-page th p { text-align: left; margin: 5px 0 0; color: var(--muted); }
+.options-page button { width: auto; min-width: 90px; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #111d18;
+    --surface: #1c2b23;
+    --soft: #25392d;
+    --text: #edf7f0;
+    --muted: #a4b9aa;
+    --line: #344b3b;
+    --accent: #70daa3;
+    --accent-dark: #a0ecc1;
+  }
+  button { background: #27966a; color: #fff; }
+  button:hover { background: #197c53; }
+  #deleteButton { background: #4a2928; color: #ffb8af; }
+}

@@ -1,4 +1,4 @@
-console.log("Auto 2FA QR scan script injected");
+console.log("Auto Duo QR scan script injected");
 // Wait for popup.js to ask for QR
 (typeof browser !== 'undefined' ? browser : chrome).runtime.onMessage.addListener((_message, _sender, sendResponse) => {
     console.log("Received QR code request");

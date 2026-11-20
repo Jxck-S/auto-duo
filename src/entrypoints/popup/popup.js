@@ -842,7 +842,7 @@ async function initialize() {
       }
       // Check if they have too many devices, and warn them if so
       if (data.devices.length > 30) { // 34 is the max sync so warn at 30
-        errorSplash.innerHTML = `You have a lot of devices! You may run out of space soon. See <a target="_blank" href="https://github.com/FreshSupaSulley/Auto-2FA/blob/main/TUTORIAL.md#storage">here</a> for more info.`;
+        errorSplash.innerHTML = `You have a lot of devices! You may run out of space soon. See <a target="_blank" href="https://github.com/Jxck-S/auto-duo/blob/main/TUTORIAL.md#storage">here</a> for more info.`;
       } else {
         errorSplash.innerHTML = ``;
       }

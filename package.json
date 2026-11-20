@@ -1,6 +1,6 @@
 {
-  "name": "wxt-starter",
-  "description": "manifest.json description",
+  "name": "auto-duo",
+  "description": "An independent browser extension for Duo login requests",
   "private": true,
   "version": "0.0.0",
   "type": "module",

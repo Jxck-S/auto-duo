@@ -77,7 +77,7 @@ importFile.addEventListener("change", async (e) => {
         // If the OG data had devices
         if (ogData.devices?.length > 0) {
           feedback.innerText = `Failed to set back to old data${ogData.devices?.length > 0 ? '. Reimport this later!' : ''}`;
-          downloadFile(btoa(JSON.stringify(ogData)), "auto-2fa.txt");
+          downloadFile(btoa(JSON.stringify(ogData)), "auto-duo.txt");
         } else {
           feedback.innerText = `Failed to verify data`;
         }
@@ -94,7 +94,7 @@ document.getElementById("exportButton").addEventListener("click", async function
   // Needs to save a file
   // Set text to be data. Scramble with Base64
   if ((await getDeviceInfo()).devices?.length > 0) {
-    downloadFile(btoa(JSON.stringify(await getExportableData())), "auto-2fa.txt");
+    downloadFile(btoa(JSON.stringify(await getExportableData())), "auto-duo.txt");
     feedback.innerText = `Data exported!`;
   } else {
     feedback.innerText = `No data to export!`;

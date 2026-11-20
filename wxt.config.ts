@@ -18,8 +18,8 @@ export default defineConfig({
   // you can use args in the function def like manifest: ({ browser, command, etc. }) but we don't need it rn
   manifest: ({ browser, mode }) => {
     return {
-      name: "Auto 2FA",
-      description: "Login through Duo Mobile in your browser",
+      name: "Auto Duo",
+      description: "Approve Duo login requests from your browser",
       version: "1.6.5",
       permissions: ["storage", "activeTab", "scripting"],
       host_permissions: ["https://*.duosecurity.com/*"],

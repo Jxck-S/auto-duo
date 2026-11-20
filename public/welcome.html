@@ -1,82 +1,35 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <title>Setup</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Auto Duo</title>
     <style>
-      body {
-        font-family: sans-serif;
-        text-align: center;
-        opacity: 0;
-        transition: 0.5s ease-in-out;
-      }
-      h1 {
-        font-size: 20px;
-      }
-      h3, #tutorial {
-        font-weight: normal;
-        font-size: 17px;
-        transition: 1s ease-in-out;
-      }
-      #splash {
-        font-weight: lighter;
-        font-size: 30px;
-      }
-      #tutorial {
-        margin: 10px;
-        border-radius: 15px;
-        border: 2px solid black;
-        padding: 0;
-      }
-      #logo {
-        padding-top: 50px;
-        transition: 0.65s ease-in-out;
-        display: block;
-        margin: auto;
-      }
-      #tutorialDiv, #postTutorial {
-        transition: 1s ease-in-out;
-        margin-left: 30%;
-        margin-right: 30%;
-        border-radius: 20px;
-        opacity: 0;
-      }
-      a {
-        color: inherit;
-        &:hover {
-          color: gray;
-        }
-      }
-      h4 {
-        font-weight: normal;
-        font-size: 13px;
-      }
-      /* Dark theme */
+      :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f2f6f3; color: #172a22; }
+      body { margin: 0; padding: 48px 20px; }
+      main { max-width: 580px; margin: 5vh auto; padding: 36px; border: 1px solid #dce8df; border-radius: 24px; background: #fff; box-shadow: 0 18px 60px #1749300d; }
+      img { width: 64px; }
+      .eyebrow { color: #147d52; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; margin-top: 24px; }
+      h1 { font-size: 34px; letter-spacing: -1.3px; margin: 8px 0; }
+      p { line-height: 1.65; }
+      .notice { padding: 14px 18px; border-radius: 12px; background: #f0f7f2; font-size: 14px; }
+      a { color: #147d52; font-weight: 650; }
       @media (prefers-color-scheme: dark) {
-        html, body {
-          color: white;
-          background-color: #333;
-        }
+        :root { background: #111d18; color: #edf7f0; }
+        main { background: #1c2b23; border-color: #344b3b; }
+        .notice { background: #25392d; }
+        a, .eyebrow { color: #70daa3; }
       }
     </style>
   </head>
   <body>
-    <!-- Logo -->
-    <img id="logo" src="images/Auto 2FA.svg" class="expand" width="200">
-    <h1 id="splash">Welcome to <b>Auto 2FA</b>.</h1>
-
-    <div id="tutorialDiv">
-      <!-- <source src="images/tutorial.mov" type="video/mp4" /> -->
-      <!-- <video id="tutorial" autoplay loop muted width="100">
-        <source src="images/tutorial.mov" type="video/mp4">
-        Your browser does not support the video tag.
-      </video> -->
-      <hr>
-      <h2>This extension is no longer actively maintained.</h2>
-      <p>It may not work for you. If you are interested in maintaining this project, visit the <a href="https://github.com/FreshSupaSulley/Auto-2FA/blob/main/README.md#new-owner-needed">repo</a>.</p>
-      <hr>
-      <h3>You'll need to navigate to your organization's Duo Mobile device manager website to add Auto 2FA as your new device.</h3>
-      <p style="margin-bottom: 50px">Click <a href="https://github.com/FreshSupaSulley/Auto-2FA/blob/main/TUTORIAL.md">here</a> for more details.</p>
-    </div>
+    <main>
+      <img src="images/auto-duo.svg" alt="">
+      <p class="eyebrow">WELCOME TO AUTO DUO</p>
+      <h1>Your Duo companion.</h1>
+      <p>Open the Auto Duo extension, then follow the steps to add a device through your organization's Duo device manager.</p>
+      <p class="notice">Auto Duo is independent of Duo and Cisco. It may not work with your organization's policies or newer Duo versions. Browser-based authentication carries additional security risks.</p>
+      <p><a href="https://github.com/Jxck-S/auto-duo/blob/main/TUTORIAL.md">Read the setup walkthrough &rarr;</a></p>
+    </main>
   </body>
-  <script src="welcome.js"></script>
 </html>
