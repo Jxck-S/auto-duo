@@ -362,6 +362,10 @@ dialog {
   padding: 10px;
 }
 
+#successDetails, #approveTable td {
+  overflow-wrap: anywhere;
+}
+
 #failedReason {
   overflow-wrap: break-word;
 }

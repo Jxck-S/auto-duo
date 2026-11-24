@@ -6,7 +6,7 @@ export default defineBackground(() => {
     }
   });
 
-  let currentAbortController = null;
+  let currentLogin = null;
 
   // Trying to keep all of the methods in the same place to reduce space
   browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -40,13 +40,30 @@ export default defineBackground(() => {
       }
       // Called when the content script is injected on a Duo login page
       case "onLoginPage": {
-        if (currentAbortController) {
-          console.log("Cancelling previous zero click login attempt");
-          currentAbortController.abort();
+        if (!sender.tab?.id) break;
+        const code = typeof params.verificationCode === "string" && /^\d+$/.test(params.verificationCode)
+          ? params.verificationCode : "";
+        const samePage = currentLogin && currentLogin.tabId === sender.tab.id &&
+          currentLogin.frameId === sender.frameId && currentLogin.documentId === sender.documentId;
+        if (samePage && !currentLogin.finished) {
+          currentLogin.verificationCode = code;
+        } else if (!samePage || (code && code !== currentLogin.verificationCode)) {
+          currentLogin?.controller.abort();
+          currentLogin = {
+            tabId: sender.tab.id,
+            frameId: sender.frameId,
+            documentId: sender.documentId,
+            verificationCode: code,
+            controller: new AbortController(),
+            finished: false,
+          };
+          const login = currentLogin;
+          zeroClickLogin(login).catch((error) => {
+            console.error("Zero click login failed", error);
+            login.finished = true;
+          });
         }
-        currentAbortController = new AbortController();
-        const signal = currentAbortController.signal;
-        zeroClickLogin(sender.tab.id, signal, params.verificationCode);
+        sendResponse({});
         break;
       }
     }
@@ -76,106 +93,84 @@ export default defineBackground(() => {
   const zeroClickCooldown = 1000;
   var lastSuccessfulZeroClick = 0;
 
-  async function zeroClickLogin(id, signal, verificationCode) {
+  async function zeroClickLogin(login) {
+    const id = login.tabId;
+    const signal = login.controller.signal;
     clearBadge(id);
-    // let clientIP = await fetch('https://api.ipify.org?format=json').then(response => response.json()).then(data => {
-    //     return data.ip;
-    // }).catch(error => {
-    //     console.log("Failed to get IP", error);
-    // });
-    // Ignore if we approved something recently (arbitrarily setting cooldown to 10s)
     if (Date.now() - lastSuccessfulZeroClick < 10000) {
       console.log("Zero click logged-in recently, not trying again");
+      login.finished = true;
       return;
     }
-    // lastZeroClick = time;
-    // Get all devices that use 0 clicks (1 indicates zero-click login, 1-3 total range)
     let deviceInfo = await getDeviceInfo();
     let zeroClickDevices = Object.values(await new Promise((resolve) => browser.storage.sync.get(deviceInfo.devices, resolve))).filter((device) => device.clickLevel == "1");
     console.log("Eligible devices to 0 click in with", zeroClickDevices);
     if (!zeroClickDevices.length) {
       console.log("No devices to zero-click with, aborting");
+      login.finished = true;
       return;
     }
-    // For each device that can be zero clicked
+    if (signal.aborted) return;
     console.log("Attempting to zero-click login");
     let attempts = 0;
+    let checking = false;
     let loadingInterval = setInterval(async () => {
       if (signal.aborted) {
         console.log("Zero click aborted before attempt ", attempts + 1);
         clearInterval(loadingInterval);
         return;
       }
-      // Only continue the load if on the same tab, because the prompt screen is one thing, and Duo picking the device is another
-      let [tab] = await browser.tabs.query({ active: true, lastFocusedWindow: true });
-      if (!tab || tab.id != id) {
-        console.log("Waiting for user to navigate to login page");
-        return;
-      }
-      // Update attempts
-      let result = await getAction().setBadgeText({ text: `${++attempts}/${maxAttempts}`, tabId: id }).catch((e) => {
-        // The tab was closed
-        console.log("Tab was closed");
-        clearInterval(loadingInterval);
-        return false;
-      });
-      if (result === false) return;
-      // Keep searching until one of the devices succeeds
-      for (let info of zeroClickDevices) {
-        console.log("Checking " + info.name);
-        let transactions = (
-          await buildRequest(info, "GET", "/push/v2/device/transactions").catch((error) => {
-            // Stop trying if getting transactions failed (for any of them?)
-            console.error(error);
-            stopClickLogin(loadingInterval, "#FC0D1B", "Fail", id);
-          })
-        ).response.transactions;
-        // If there's just 1 login attempt
-        if (transactions.length == 1) {
-          lastSuccessfulZeroClick = Date.now();
-          // Ensure the IPs match
-          // let duoIP = extractIP(transactions[0]);
-          // Approve it ONLY IF IPs match
-          // if(clientIP == duoIP) {
-          //     await approveTransaction(info, transactions, transactions[0].urgid);
-          //     stopClickLogin(loadingInterval, "#67B14A", "Done", id);
-          // } else {
-          //     // nah
-          //     stopClickLogin(loadingInterval, "FC0D1B", "IP");
-          // }
-          console.log("Transaction found for device " + info.name);
-          await approveTransactionHandler(info, transactions, transactions[0].urgid, verificationCode)
-            /**
-             * These don't seem to actually fire anymore, something is clearing the badge
-             * I think its because of the more broad host permissions catching the subroutes of the duo login screen
-             * Cause when the login succeeds / fails and the page changes it'll override the badge shit (I THINK)
-             * this is a fairly non-issue but would be nice to get patched out one day
-             */
-            .then(() => {
-              // Signal success
-              getAction().setBadgeTextColor({ color: `#FFF`, tabId: id }).catch((e) => { });
-              stopClickLogin(loadingInterval, "#67B14A", "Done", id);
-            })
-            .catch((e) => {
-              // Signal failure
-              getAction().setBadgeTextColor({ color: `#FFF`, tabId: id }).catch((e) => { });
-              stopClickLogin(loadingInterval, "#FC0D1B", "Err", id);
-            });
-          // Don't try other devices, we're done
-          break;
-        } else if (transactions.length > 1) {
-          // Multiple push requests are happening on this particular device, stop immediately
-          stopClickLogin(loadingInterval, "#FF9333", "Open", id);
-          // Don't try other devices, we're done
-          break;
-        } else {
-          // Increase the counter (theoretically I could intentionally do attempts == maxAttempts as it should never happen but not in prod lol)
-          if (attempts >= maxAttempts) {
-            stopClickLogin(loadingInterval, "#FC0D1B", `None`, id);
-            // Don't try other devices, we're done
+      if (checking) return;
+      checking = true;
+      try {
+        let waitingForCode = false;
+        // Only approve while the originating tab is active.
+        let [tab] = await browser.tabs.query({ active: true, lastFocusedWindow: true });
+        if (signal.aborted || !tab || tab.id != id) return;
+        let result = await getAction().setBadgeText({ text: `${++attempts}/${maxAttempts}`, tabId: id }).catch(() => {
+          console.log("Tab was closed");
+          login.finished = true;
+          clearInterval(loadingInterval);
+          return false;
+        });
+        if (result === false || signal.aborted) return;
+        for (let info of zeroClickDevices) {
+          if (signal.aborted) return;
+          console.log("Checking " + info.name);
+          let transactions = (await buildRequest(info, "GET", "/push/v2/device/transactions")).response.transactions;
+          if (signal.aborted) return;
+          if (transactions.length == 1) {
+            const stepUp = transactions[0].step_up_code_info;
+            const verificationCode = login.verificationCode;
+            const numDigits = Number(stepUp?.num_digits);
+            if (stepUp && (!Number.isInteger(numDigits) || numDigits < 1 || verificationCode.length !== numDigits)) {
+              waitingForCode = true;
+              continue;
+            }
+            console.log("Transaction found for device " + info.name);
+            await approveTransactionHandler(info, transactions, transactions[0].urgid, stepUp ? verificationCode : undefined);
+            lastSuccessfulZeroClick = Date.now();
+            login.finished = true;
+            getAction().setBadgeTextColor({ color: "#FFF", tabId: id }).catch(() => {});
+            stopClickLogin(loadingInterval, "#67B14A", "Done", id);
+            break;
+          } else if (transactions.length > 1) {
+            login.finished = true;
+            stopClickLogin(loadingInterval, "#FF9333", "Open", id);
             break;
           }
         }
+        if (signal.aborted) return;
+        if (!login.finished && attempts >= maxAttempts) {
+          login.finished = true;
+          stopClickLogin(loadingInterval, "#FC0D1B", waitingForCode ? "Code" : "None", id);
+        }
+      } catch (error) {
+        console.error("Could not check Duo transactions", error);
+        login.finished = true;
+        stopClickLogin(loadingInterval, "#FC0D1B", "Fail", id);
+      } finally {
+        checking = false;
       }
     }, zeroClickCooldown);
   }
@@ -383,8 +378,8 @@ export default defineBackground(() => {
         },
       });
     } catch (networkErr) {
-      console.error("[Duo buildRequest] Network error fetching", url, networkErr);
-      throw new Error(`Failed to fetch ${url}: ${networkErr}`);
+      console.error("[Duo buildRequest] Network error fetching", `https://${host}${path}`, networkErr);
+      throw new Error(`Failed to fetch https://${host}${path}: ${networkErr}`);
     }
 
     // 10. If not OK, throw a detailed error with Duo’s JSON payload

@@ -28,9 +28,11 @@ After updating the source, run `npm ci` and `npm run build` again, then reload t
 
 Open your organization's Duo device manager, choose to add a device, and follow the extension's instructions. For screenshots, alternative activation steps, login modes, and troubleshooting, see the [setup walkthrough](TUTORIAL.md). When logging in, select the device created by Auto Duo under **Other options** if Duo sends the request to another device.
 
+For zero-click verified pushes, Auto Duo reads the verification code from the Duo prompt and waits for it before approving. If it cannot find the code, use the extension's manual approval screen. Support depends on Duo's page and API remaining compatible.
+
 ## Security and privacy
 
-Auto Duo is less secure than using a separate phone: device credentials are stored in browser extension storage and may be synced with your browser account. Exports contain sensitive credentials and are not encrypted; never share them. Automatic or one-click approval can approve an unintended request. Select the two-click setting to review every login, protect your browser profile, and consider disabling extension data sync.
+Auto Duo is less secure than using a separate phone: device credentials are stored in browser extension storage and may be synced with your browser account. Exports contain sensitive credentials and are not encrypted; never share them. Automatic or one-click approval can approve an unintended request. Automatically reading a verified-push code also removes the independent verification that code is intended to provide. Select the two-click setting to review every login, protect your browser profile, and consider disabling extension data sync.
 
 Device registration and login requests communicate with Duo's servers. Review your organization's rules before using this extension.
 
